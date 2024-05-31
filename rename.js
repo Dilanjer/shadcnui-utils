@@ -1,39 +1,39 @@
 const fs = require("fs");
 const path = require("path");
 
-// Функция для преобразования строки в формат CamelCase
+// Function to convert a string to CamelCase format
 function toCamelCase(str) {
-  // Удаляем символы "-" и разбиваем строку на слова
+  // Remove "-" symbols and split the string into words
   const words = str.split("-");
 
-  // Преобразуем каждое слово в формат CamelCase
+  // Convert each word to CamelCase format
   const camelCaseWords = words.map((word, index) => {
     if (index === 0) {
-      // Первое слово остается без изменений
+      // The first word remains unchanged
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     } else {
-      // Для остальных слов первая буква в нижнем регистре
+      // For the rest of the words, the first letter is in lowercase
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     }
   });
 
-  // Объединяем слова обратно в строку
+  // Join the words back into a string
   const camelCaseStr = camelCaseWords.join("");
 
   return camelCaseStr;
 }
 
-// Получаем текущую директорию
+// Get the current directory
 const rootDir = process.cwd();
 
-// Получаем список файлов в текущей директории
+// Get the list of files in the current directory
 fs.readdir(rootDir, (err, files) => {
   if (err) {
-    console.error("Ошибка чтения директории:", err);
+    console.error("Error reading directory:", err);
     return;
   }
 
-  // Фильтруем список файлов, оставляя только файлы без расширения .js и .ts и не являющиеся скриптом rename.js
+  // Filter the list of files, keeping only files without .js and .ts extensions and not the rename.js script
   const filteredFiles = files.filter((file) => {
     return (
       fs.statSync(path.join(rootDir, file)).isFile() &&
@@ -43,21 +43,21 @@ fs.readdir(rootDir, (err, files) => {
     );
   });
 
-  // Проходим по каждому файлу
+  // Process each file
   filteredFiles.forEach((file) => {
-    // Создаем папку с названием CamelCase
+    // Create a folder with a CamelCase name
     const folderName = toCamelCase(file.slice(0, file.lastIndexOf(".")));
 
     const folderPath = path.join(rootDir, folderName);
     fs.mkdirSync(folderPath);
 
-    // Перемещаем файл в эту папку
+    // Move the file to this folder
     const oldFilePath = path.join(rootDir, file);
     const newFilePath = path.join(folderPath, "index.tsx");
     fs.renameSync(oldFilePath, newFilePath);
 
     console.log(
-      `Файл "${file}" был перемещен в папку "${folderName}" и переименован в "index.tsx"`
+      `File "${file}" has been moved to folder "${folderName}" and renamed to "index.tsx"`
     );
   });
 });
